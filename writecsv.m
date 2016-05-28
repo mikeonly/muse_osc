@@ -1,11 +1,11 @@
 function writecsv(filename, data, varargin)
-%WRITECSV Add the data in the last line of the FILENAME CSV file, if it 
-%exists, if not the FILENAME CSV file is created
+% WRITECSV Add the data in the last line of the FILENAME CSV file, if it 
+% exists, if not the FILENAME CSV file is created
 %
-%DATA can be:
-%Cell of size {1xN} //Usually for headers
-%Matrix of size (1xN) //One sample of N channels
-%Matrix of size (RxN) //R samples of N channels
+% DATA can be:
+% Cell of size {1xN} //Usually for headers
+% Matrix of size (1xN) //One sample of N channels
+% Matrix of size (RxN) //R samples of N channels
 %
 %
 % Raymundo Cassani 
@@ -13,7 +13,7 @@ function writecsv(filename, data, varargin)
 
 if nargin < 3
     quotes = false; %if FALSE 123.123, if true "123.123"
-    numformat = '%10.4f'; %example ±1234567890.1234
+    numformat = '%10.4f'; %example ?1234567890.1234
 elseif nargin == 3
     quotes = varargin{1};   
 elseif nargin > 3
