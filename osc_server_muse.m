@@ -12,28 +12,39 @@ tbFlag = any(strcmp(tbName, {verInfo.Name}));
 assert(tbFlag, 'Instument Control Toolbox needed.')
 
 fprintf('\n')
-        
+
 %% Initializing function
-% Use defaults to start TCP server.
+% Calculate number of bits in OSC message.
+% nbits = getnBits('/muse/elements/alpha_relative', 'ffff');
+nbits = getnBits('/muse/eeg', 'ffff');
+
 % Create a function handler for adding new values to the TimeScope.
 % eegAddToPlot = eegTimeScope();
+
 % Create bar plot for alpha relative channel and get a handler for
 % updating it.
-addToBarPlot = barPlot([0 1], 'Alpha Relative');
+% addToBarPlot = barPlot([0 1], 'Alpha Relative');
 
-museServer = tcpOpen('127.0.0.1', 7000);
+ts = timeseries('EEG')
+ts.DataInfo.Units = 'mV';
+ts.TimeInfo.Units = 's';
+blink = tsdata.event('Blink', 7);
+e.Units = 's';
 
-% Calculate number of bits in OSC message.
-alpharelBits = getnBits('/muse/elements/alpha_relative', 'ffff');
-% eegBits = getnBits('/muse/eeg', 'ffff');
+% Use defaults to start TCP server.
+museServer = tcpOpen('127.0.0.1', 7006);
 
 %% Receiving loop
-while true
+i = 0;
+
+fprintf('\tStart.')
+
+while i < 1100
     try
 %         Bar plot can be used to show alpha relative:
-        args = tcpRead(museServer, alpharelBits);
-        addToBarPlot(args);
-        
+%         args = tcpRead(museServer, alpharelBits);
+%         addToBarPlot(args);
+          i = i + 1;
 %         This is used for plotting real-time EEG signal.
 %         args = tcpRead(museServer, eegBits);
 %         eegAddToPlot(args);
@@ -42,6 +53,26 @@ while true
     end
 end
 
+% Start recording 20 packets (2 seconds)
+while i < 1540
+    args = tcpRead(museServer, nbits);
+    ts = ts.addsample('Time',i/220,'Data',args(1));
+    i = i + 1;
+end
+
+% Display stimulus
+fprintf('\tBlink!')
+ts = addevent(ts, blink); % Add blink event
+
+% Record 30 packets (3 seconds) after event
+while i < 2200
+    args = tcpRead(museServer, nbits);
+    ts = ts.addsample('Time',i/220,'Data',args(1));
+    i = i + 1;
+end
+
+fprintf('\tEnd.')
+plot(ts)
 %% Closing statements
 % Close TCP server.
 tcpClose(museServer);
