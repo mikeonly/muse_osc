@@ -13,7 +13,7 @@ list = '';
 for k = 1:numel(requirements)
     tb = requirements{k};
     % Array that contains flag 'missing'
-    tbFlags = [tbFlags any(strcmp(tb, {verInfo.Name}))];
+    tbFlags = [tbFlags ~any(strcmp(tb, {verInfo.Name}))];
     list = strcat(list,tb,{', '});
 end
 % Assert that nothing is missing and print error otherwise
