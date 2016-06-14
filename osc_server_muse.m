@@ -6,10 +6,25 @@
 % November 2014
 
 % Check if the Instrumentation Control Toolbox is present
-tbName = 'Instrument Control Toolbox';
+requirements = {'Instrument Control Toolbox', 'DSP System Toolbox'};
 verInfo = ver;
-tbFlag = any(strcmp(tbName, {verInfo.Name}));
-assert(tbFlag, 'Instument Control Toolbox needed.')
+tbFlags = [];
+list = '';
+for k = 1:numel(requirements)
+    tb = requirements{k};
+    % Array that contains flag 'missing'
+    tbFlags = [tbFlags any(strcmp(tb, {verInfo.Name}))];
+    list = strcat(list,tb,{', '});
+end
+% Assert that nothing is missing and print error otherwise
+if sum(tbFlags) == 1
+    assert(false, '\n\t%s is missing.',...
+        strcat(list{1}(1:end-2)))
+end
+if sum(tbFlags) > 1
+    assert(false, '\n\tSeveral toolboxes are missing: %s\n',...
+        strcat(list{1}(1:end-2),'.'))
+end
 
 fprintf('\n')
 
@@ -29,7 +44,7 @@ ts = timeseries('EEG')
 ts.DataInfo.Units = 'mV';
 ts.TimeInfo.Units = 's';
 blink = tsdata.event('Blink', 7);
-e.Units = 's';
+blink.Units = 's';
 
 % Use defaults to start TCP server.
 museServer = tcpOpen('127.0.0.1', 7006);
